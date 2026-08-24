@@ -17,7 +17,7 @@
     "neighbors": {
         "up": null,
         "down": null,
-        "left": "world.json",
+        "left": "room0.json",
         "right": null
     }
 }
