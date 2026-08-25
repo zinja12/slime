@@ -5,17 +5,19 @@ local world = {}
 --constants
 local TILE_SIZE = 8
 local TILES = {
-  ["."] = { x = 1, y = 3, movable = false,  name = "floor" },
-  ["g"] = { x = 3, y = 3, movable = false,  name = "grass" },
-  ["d"] = { x = 2, y = 3, movable = false,  name = "dirt" },
-  ["#"] = { x = 1, y = 1, movable = false,  name = "wall" },
-  ["T"] = { x = 1, y = 2, movable = false,  name = "wall_top" },
-  ["$"] = { x = 2, y = 1, movable = false,  name = "pillar" },
-  ["X"] = { x = 2, y = 2, movable = true,  name = "cracked_wall" },
-  ["r"] = { x = 4, y = 3, movable = true,  name = "rock" },
-  ["P"] = { x = 3, y = 4, movable = true,  name = "player" },
-  ["t"] = { x = 5, y = 3, movable = true,  name = "tree" },
-  ["s"] = { x = 2, y = 6, movable = true,  consumable = true, name = "slime" },
+  ["."] = { x = 1, y = 3, movable = false, name = "floor" },
+  ["g"] = { x = 3, y = 3, movable = false, name = "grass" },
+  ["d"] = { x = 2, y = 3, movable = false, name = "dirt" },
+  ["#"] = { x = 1, y = 1, movable = false, name = "wall" },
+  ["T"] = { x = 1, y = 2, movable = false, name = "wall_top" },
+  ["$"] = { x = 2, y = 1, movable = false, name = "pillar" },
+  ["X"] = { x = 2, y = 2, movable = true, name = "cracked_wall" },
+  ["r"] = { x = 4, y = 3, movable = true, name = "rock" },
+  ["P"] = { x = 3, y = 4, movable = true, name = "player" },
+  ["t"] = { x = 5, y = 3, movable = true, name = "tree" },
+  ["s"] = { x = 2, y = 6, movable = true, consumable = true, name = "slime" },
+  ["m"] = { x = 1, y = 5, movable = false, name = "mushroom" },
+  ["o"] = { x = 1, y = 4, movable = false, name = "path" },
 }
 
 --world data structures
@@ -93,7 +95,7 @@ function world.load(filename)
 end
 
 function world.is_empty(tile_char)
-    return tile_char == "." or tile_char == "g" or tile_char == "d"
+    return tile_char == "." or tile_char == "g" or tile_char == "d" or tile_char == "m" or tile_char == "o"
 end
 
 function world.is_consumable(tile_char)
