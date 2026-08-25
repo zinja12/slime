@@ -36,7 +36,7 @@ function world.init()
     --room cache for previously visited rooms
     world.room_cache = {}
     --load initial room
-    world.load("room0.json")
+    world.load("roomA.json")
 end
 
 function world.load(filename)
