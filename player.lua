@@ -166,7 +166,24 @@ function player.tile_movement()
                 if world.is_empty(target_tile) then
                     can_move = true
                 elseif world.is_consumable(target_tile) then
-                    can_consume = true
+                    --check if there is room to expand to a large slime
+                    if player.slime_size == 2 then
+                        local origin_x, origin_y = player.find_valid_growth_origin(target_x, target_y)
+                        
+                        if origin_x ~= nil then
+                            can_consume = true
+                            --override target snap position to valid origin
+                            player.target_tile_position_x = origin_x * TILE_SIZE
+                            player.target_tile_position_y = origin_y * TILE_SIZE
+                            --if valid space forces backward expansion into current spot, then zero slide direction so sprite does not jitter and rubber band
+                            if origin_x == player.x / TILE_SIZE and origin_y == player.y / TILE_SIZE then
+                                player.direction_x = 0
+                                player.direction_y = 0
+                            end
+                        end
+                    else
+                        can_consume = true
+                    end
                 end
             else
                 --large slime checks 2x2 blocks
@@ -222,6 +239,47 @@ function player.tile_movement()
             player.animation_timer = 0
         end
     end
+end
+
+function player.find_valid_growth_origin(target_x, target_y)
+    --4 possible origins for a 2x2 space to include coordinate pair target_x, target_y
+    local origins = {
+        --default (down right expand)
+        { x = target_x, y = target_y },
+        --left expand
+        { x = target_x - 1, y = target_y },
+        --expand up
+        { x = target_x, y = target_y - 1 },
+        --expand up left
+        { x = target_x - 1, y = target_y - 1 }
+    }
+
+    --loop over origins and check for valid expansion to expand into
+    for i = 1, #origins do
+        local origin_x = origins[i].x
+        local origin_y = origins[i].y
+        --check 2x2 area is within bounds
+        if origin_x >= 0 and origin_y >= 0 and origin_x + 1 < world.width and origin_y + 1 < world.height then
+            local top_left = world.map[origin_y + 1][origin_x + 1]
+            local top_right = world.map[origin_y + 1][origin_x + 2]
+            local bottom_left = world.map[origin_y + 2][origin_x + 1]
+            local bottom_right = world.map[origin_y + 2][origin_x + 2]
+
+            --valid tile is empty or if it is the slime being consumed
+            local function valid_tile(cx, cy, tile_char)
+                return world.is_empty(tile_char) or (cx == target_x and cy == target_y)
+            end
+
+            if valid_tile(origin_x, origin_y, top_left) and 
+               valid_tile(origin_x + 1, origin_y, top_right) and 
+               valid_tile(origin_x, origin_y + 1, bottom_left) and 
+               valid_tile(origin_x + 1, origin_y + 1, bottom_right) then
+                --return first successful pair
+                return origin_x, origin_y
+            end
+        end
+    end
+    return nil, nil
 end
 
 function player.check_slime_eject()
