@@ -2,6 +2,7 @@
 local player = {}
 local world = require("world")
 local particles = require("particles")
+local undo = require("undo")
 
 local TILE_SIZE = 8
 
@@ -75,6 +76,17 @@ function player.input_held(action)
 end
 
 function player.get_input()
+    --undo input
+    --prevent undo if the player is moving
+    if not player.moving and player.input_down(input.BTN2) == 1 then
+        undo.perform_undo(player, world)
+        --skip all other input
+        player._v = 0
+        player._h = 0
+        player.input_timer = 0
+        return
+    end
+
     --check for input pressed
     -- player._v = player.input_down(input.DOWN) - player.input_down(input.UP)
     -- player._h = player.input_down(input.RIGHT) - player.input_down(input.LEFT)
@@ -174,11 +186,13 @@ function player.tile_movement()
 
             --move or consume
             if can_move then
+                undo.save_state(player, world)
                 player.moving = true
                 player.pixels_remaining = TILE_SIZE
                 --spawn particles for movement
                 particles.spawn(player.x, player.y, 4, 3, 10, false)
             elseif can_consume then
+                undo.save_state(player, world)
                 player.moving = true
                 player.pixels_remaining = TILE_SIZE
                 --spawn particles for movement
@@ -235,9 +249,11 @@ function player.check_slime_eject()
         --check valid slime positions
         --empty primary direction should take priority
         if world.is_empty(target_tile) then
+            undo.save_state(player, world)
             world.set_tile(target_x + 1, target_y + 1, "s")
             player.safe_slime_size_change(-1)
         elseif not world.is_empty(target_tile) and world.is_empty(slime_reverse_target_tile) then
+            undo.save_state(player, world)
             --move player backward and spawn slime (recoil)
             player.moving = true
             player.direction_x = player.last_direction_x * -1
@@ -348,6 +364,7 @@ function player.detect_room_edge_transitions(target_x, target_y)
     end
 
     if move_room then
+        undo.save_state(player, world)
         player.moving = true
         player.x = player.target_tile_position_x
         player.y = player.target_tile_position_y

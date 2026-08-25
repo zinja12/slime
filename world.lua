@@ -28,6 +28,7 @@ world.height = 0
 world.player_spawn_x = 0
 world.player_spawn_y = 0
 world.room_cache = {}
+world.current_room = ""
 
 function world.init()
     --room cache for previously visited rooms
@@ -37,6 +38,9 @@ function world.init()
 end
 
 function world.load(filename)
+    --set current room
+    world.current_room = filename
+    --load room data
     local data = usagi.read_json(filename)
     --set world variables
     world.width  = data.tile_map_width
