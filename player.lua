@@ -128,6 +128,9 @@ function player.tile_movement()
             if player.direction_x ~= 0 and player.direction_y ~= 0 then
                 player.direction_x = 0
             end
+            --set last direction
+            player.last_direction_x = player.direction_x
+            player.last_direction_y = player.direction_y
             --calculate target tile position
             player.target_tile_position_x = player.x + (player.direction_x * TILE_SIZE)
             player.target_tile_position_y = player.y + (player.direction_y * TILE_SIZE)
@@ -172,15 +175,11 @@ function player.tile_movement()
             --move or consume
             if can_move then
                 player.moving = true
-                player.last_direction_x = player.direction_x
-                player.last_direction_y = player.direction_y
                 player.pixels_remaining = TILE_SIZE
                 --spawn particles for movement
                 particles.spawn(player.x, player.y, 4, 3, 10, false)
             elseif can_consume then
                 player.moving = true
-                player.last_direction_x = player.direction_x
-                player.last_direction_y = player.direction_y
                 player.pixels_remaining = TILE_SIZE
                 --spawn particles for movement
                 particles.spawn(player.x, player.y, 4, 3, 10, false)
