@@ -339,6 +339,7 @@ function player.detect_room_edge_transitions(target_x, target_y)
     
     --right edge
     if target_x + detection_threshold >= world.width and type(world.neighbors.right) == "string" then
+        undo.save_state(player, world)
         --load room
         world.load(world.neighbors.right)
         --set target tile
@@ -346,25 +347,27 @@ function player.detect_room_edge_transitions(target_x, target_y)
         move_room = true
     --left edge
     elseif target_x < 0 and type(world.neighbors.left) == "string" then
+        undo.save_state(player, world)
         world.load(world.neighbors.left)
         --subtract off detection threshole to properly position large slime
         player.target_tile_position_x = (world.width - 1 - detection_threshold) * TILE_SIZE
         move_room = true
     --up edge
     elseif target_y < 0 and type(world.neighbors.up) == "string" then
+        undo.save_state(player, world)
         world.load(world.neighbors.up)
         --subtract off detection threshold to properly position large slime
         player.target_tile_position_y = (world.height - 1 - detection_threshold) * TILE_SIZE
         move_room = true
     --down edge
     elseif target_y + detection_threshold >= world.height and type(world.neighbors.down) == "string" then
+        undo.save_state(player, world)
         world.load(world.neighbors.down)
         player.target_tile_position_y = 0
         move_room = true
     end
 
     if move_room then
-        undo.save_state(player, world)
         player.moving = true
         player.x = player.target_tile_position_x
         player.y = player.target_tile_position_y
