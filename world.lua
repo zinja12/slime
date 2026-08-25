@@ -18,6 +18,7 @@ local TILES = {
   ["s"] = { x = 2, y = 6, movable = true, consumable = true, name = "slime" },
   ["m"] = { x = 1, y = 5, movable = false, name = "mushroom" },
   ["o"] = { x = 1, y = 4, movable = false, name = "path" },
+  ["c"] = { x = 2, y = 2, movable = false, name = "cracked" },
 }
 
 --world data structures

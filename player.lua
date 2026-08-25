@@ -359,8 +359,15 @@ function player.check_slime_eject()
             undo.save_state(player, world)
             world.set_tile(target_x + 1, target_y + 1, "s")
             player.safe_slime_size_change(-1)
-        elseif not world.is_empty(target_tile) and world.is_empty(slime_reverse_target_tile) then
+        elseif not world.is_empty(target_tile) and (world.is_empty(slime_reverse_target_tile) or slime_reverse_target_tile == "c") then
             undo.save_state(player, world)
+
+            --cracked wall tile interaction
+            if slime_reverse_target_tile == "c" then
+                --set tile
+                world.set_tile(slime_reverse_target_x + 1, slime_reverse_target_y + 1, ".")
+            end
+
             --move player backward and spawn slime (recoil)
             player.moving = true
             player.direction_x = player.last_direction_x * -1
