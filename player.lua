@@ -159,6 +159,7 @@ function player.tile_movement()
             --define movement variables
             local can_move = false
             local can_consume = false
+            local pushable_rocks = {}
             --get slime size
             if player.slime_size < 3 then
                 --small and medium slime only have to check 1x1 block
@@ -189,14 +190,54 @@ function player.tile_movement()
                 --large slime checks 2x2 blocks
                 --do not check out of bounds
                 if target_y + 2 <= world.height and target_x + 2 <= world.width then
-                    local tile_top_left = world.map[target_y + 1][target_x + 1]
-                    local tile_top_right = world.map[target_y + 1][target_x + 2]
-                    local tile_bottom_left = world.map[target_y + 2][target_x + 1]
-                    local tile_bottom_right = world.map[target_y + 2][target_x + 2]
+                    local space_clear = true
+                    --check area around player
+                    for dy = 0, 1 do
+                        for dx = 0, 1 do
+                            local check_x = target_x + dx
+                            local check_y = target_y + dy
 
-                    --all 4 tiles need to be empty
-                    if world.is_empty(tile_top_left) and world.is_empty(tile_top_right) and world.is_empty(tile_bottom_left) and world.is_empty(tile_bottom_right) then
+                            --check tiles that are not occupied by the player
+                            local current_x = player.x / TILE_SIZE
+                            local current_y = player.y / TILE_SIZE
+                            local is_player_body = (check_x >= current_x and check_x <= current_x + 1 and check_y >= current_y and check_y <= current_y + 1)
+
+                            if not is_player_body then
+                                local tile_char = world.map[check_y + 1][check_x + 1]
+
+                                if tile_char == "r" then
+                                    --rock, check pushable
+                                    local push_x = check_x + player.direction_x
+                                    local push_y = check_y + player.direction_y
+
+                                    if push_x >= 0 and push_x < world.width and push_y >= 0 and push_y < world.height then
+                                        if world.is_empty(world.map[push_y + 1][push_x + 1]) then
+                                            --can push rock, tile behind is empty
+                                            table.insert(pushable_rocks, {
+                                                origin_x = check_x,
+                                                origin_y = check_y,
+                                                next_x = push_x,
+                                                next_y = push_y
+                                            })
+                                        else
+                                            --rock is blocked behind by object
+                                            space_clear = false
+                                        end
+                                    else
+                                        --rock is blocked by edge of room
+                                        space_clear = false
+                                    end
+                                elseif not world.is_empty(tile_char) then
+                                    space_clear = false
+                                end
+                            end
+                        end
+                    end
+
+                    if space_clear then
                         can_move = true
+                    else
+                        pushable_rocks = {}
                     end
                 end
             end
@@ -204,6 +245,14 @@ function player.tile_movement()
             --move or consume
             if can_move then
                 undo.save_state(player, world)
+
+                --check for pushable rocks
+                for i = 1, #pushable_rocks do
+                    local r = pushable_rocks[i]
+                    world.set_tile(r.origin_x + 1, r.origin_y + 1, ".")
+                    world.set_tile(r.next_x + 1, r.next_y + 1, "r")
+                end
+
                 player.moving = true
                 player.pixels_remaining = TILE_SIZE
                 --spawn particles for movement
