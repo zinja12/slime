@@ -11,7 +11,6 @@ local TILES = {
   ["#"] = { x = 1, y = 1, movable = false, name = "wall" },
   ["T"] = { x = 1, y = 2, movable = false, name = "wall_top" },
   ["$"] = { x = 2, y = 1, movable = false, name = "pillar" },
-  ["X"] = { x = 2, y = 2, movable = true, name = "cracked_wall" },
   ["r"] = { x = 4, y = 3, movable = true, name = "rock" },
   ["P"] = { x = 3, y = 4, movable = true, name = "player" },
   ["t"] = { x = 5, y = 3, movable = true, name = "tree" },
