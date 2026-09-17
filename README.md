@@ -19,3 +19,6 @@ Levels are built via json files mapping characters to tiles that the world.lua f
 ## Todo
 - Trying to build out a levels that makes use of the slime growing / shrinking mechanics. I want to make better use of making the player think about how to grow and shrink appropriately especially when breaking cracked tile blocks
 - Need to add some sound effects and music
+- reverse pushble trees that reveal treasure underneath
+- animations for gold pick up and skull pick ups
+- level design for hub world to leave gold and skulls

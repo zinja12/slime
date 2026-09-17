@@ -18,6 +18,8 @@ local TILES = {
   ["m"] = { x = 1, y = 5, movable = false, name = "mushroom" },
   ["o"] = { x = 1, y = 4, movable = false, name = "path" },
   ["c"] = { x = 2, y = 2, movable = false, name = "cracked" },
+  ["k"] = { x = 1, y = 8, movable = false, name = "skull" },
+  ["i"] = { x = 1, y = 7, movable = false, name = "ingot" },
 }
 
 --world data structures
@@ -95,7 +97,7 @@ function world.load(filename)
 end
 
 function world.is_empty(tile_char)
-    return tile_char == "." or tile_char == "g" or tile_char == "d" or tile_char == "m" or tile_char == "o"
+    return tile_char == "." or tile_char == "g" or tile_char == "d" or tile_char == "m" or tile_char == "o" or tile_char == "k" or tile_char == "i"
 end
 
 function world.is_consumable(tile_char)

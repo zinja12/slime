@@ -359,13 +359,33 @@ function player.check_slime_eject()
             undo.save_state(player, world)
             world.set_tile(target_x + 1, target_y + 1, "s")
             player.safe_slime_size_change(-1)
-        elseif not world.is_empty(target_tile) and (world.is_empty(slime_reverse_target_tile) or slime_reverse_target_tile == "c") then
+        elseif not world.is_empty(target_tile) and (world.is_empty(slime_reverse_target_tile) or slime_reverse_target_tile == "c" or slime_reverse_target_tile == "t") then
             undo.save_state(player, world)
 
             --cracked wall tile interaction
             if slime_reverse_target_tile == "c" then
                 --set tile
                 world.set_tile(slime_reverse_target_x + 1, slime_reverse_target_y + 1, ".")
+            end
+
+            --tree push with reverse movement
+            if slime_reverse_target_tile == "t" then
+                local push_x = slime_reverse_target_x - player.last_direction_x
+                local push_y = slime_reverse_target_y - player.last_direction_y
+
+                --check space behind tree
+                if push_x >= 0 and push_x < world.width and push_y >= 0 and push_y < world.height and world.is_empty(world.map[push_y + 1][push_x + 1]) then
+                    local secret_tile = "k"
+                    if (slime_reverse_target_x + slime_reverse_target_y) % 2 == 0 then
+                        secret_tile = "i"
+                    end
+
+                    world.set_tile(slime_reverse_target_x + 1, slime_reverse_target_y + 1, secret_tile)
+                    world.set_tile(push_x + 1, push_y + 1, "t")
+                else
+                    undo.perform_undo(player, world)
+                    return
+                end
             end
 
             --move player backward and spawn slime (recoil)
