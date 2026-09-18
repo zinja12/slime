@@ -51,6 +51,11 @@ function player.init()
     player.slime_size = 1
     player.min_slime_size = 1
     player.max_slime_size = 3
+
+    player.inventory = {
+        gold = 0,
+        skulls = 0
+    }
 end
 
 function player.update()
@@ -246,6 +251,28 @@ function player.tile_movement()
             if can_move then
                 undo.save_state(player, world)
 
+                --collect items
+                local function check_item_collect(cx, cy)
+                    local tile = world.map[cy + 1][cx + 1]
+                    if tile == "i" then
+                        player.inventory.gold += 1
+                        world.set_tile(cx + 1, cy + 1, ".")
+                    elseif tile == "k" then
+                        player.inventory.skulls += 1
+                        world.set_tile(cx + 1, cy + 1, ".")
+                    end
+                end
+
+                --size check -> collect
+                if player.slime_size < 3 then
+                    check_item_collect(target_x, target_y)
+                else
+                    check_item_collect(target_x, target_y)
+                    check_item_collect(target_x + 1, target_y)
+                    check_item_collect(target_x, target_y + 1)
+                    check_item_collect(target_x + 1, target_y + 1)
+                end
+
                 --check for pushable rocks
                 for i = 1, #pushable_rocks do
                     local r = pushable_rocks[i]
@@ -359,7 +386,7 @@ function player.check_slime_eject()
             undo.save_state(player, world)
             world.set_tile(target_x + 1, target_y + 1, "s")
             player.safe_slime_size_change(-1)
-        elseif not world.is_empty(target_tile) and (world.is_empty(slime_reverse_target_tile) or slime_reverse_target_tile == "c" or slime_reverse_target_tile == "t") then
+        elseif not world.is_empty(target_tile) and (world.is_empty(slime_reverse_target_tile) or slime_reverse_target_tile == "c" or slime_reverse_target_tile == "t" or slime_reverse_target_tile == "I" or slime_reverse_target_tile == "K") then
             undo.save_state(player, world)
 
             --cracked wall tile interaction
@@ -369,16 +396,15 @@ function player.check_slime_eject()
             end
 
             --tree push with reverse movement
-            if slime_reverse_target_tile == "t" then
+            if slime_reverse_target_tile == "t" or slime_reverse_target_tile == "I" or slime_reverse_target_tile == "K" then
                 local push_x = slime_reverse_target_x - player.last_direction_x
                 local push_y = slime_reverse_target_y - player.last_direction_y
 
                 --check space behind tree
                 if push_x >= 0 and push_x < world.width and push_y >= 0 and push_y < world.height and world.is_empty(world.map[push_y + 1][push_x + 1]) then
-                    local secret_tile = "k"
-                    if (slime_reverse_target_x + slime_reverse_target_y) % 2 == 0 then
-                        secret_tile = "i"
-                    end
+                    local secret_tile = "."
+                    if slime_reverse_target_tile == "I" then secret_tile = "i" end
+                    if slime_reverse_target_tile == "K" then secret_tile = "k" end
 
                     world.set_tile(slime_reverse_target_x + 1, slime_reverse_target_y + 1, secret_tile)
                     world.set_tile(push_x + 1, push_y + 1, "t")

@@ -20,6 +20,8 @@ local TILES = {
   ["c"] = { x = 2, y = 2, movable = false, name = "cracked" },
   ["k"] = { x = 1, y = 8, movable = false, name = "skull" },
   ["i"] = { x = 1, y = 7, movable = false, name = "ingot" },
+  ["I"] = { x = 5, y = 3, movable = true, name = "tree_ingot" },
+  ["K"] = { x = 5, y = 3, movable = true, name = "tree_skull" },
 }
 
 --world data structures

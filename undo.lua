@@ -31,6 +31,7 @@ function undo.save_state(player, world)
         size = player.slime_size,
         last_direction_x = player.last_direction_x,
         last_direction_y = player.last_direction_y,
+        inventory = { gold = player.inventory.gold, skulls = player.inventory.skulls },
         map = deep_copy_map(world.map)
     }
     table.insert(undo.history, state)
@@ -57,6 +58,10 @@ function undo.perform_undo(player, world)
     player.slime_size = state.size
     player.last_direction_x = state.last_direction_x
     player.last_direction_y = state.last_direction_y
+
+    --restore inventory
+    player.inventory.gold = state.inventory.gold
+    player.inventory.skulls = state.inventory.skulls
 
     --snap player to grid if they were moving
     player.target_tile_position_x = state.player_x
